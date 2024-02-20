@@ -15,6 +15,8 @@ let initialTime;
 let firstRun = true;
 
 let number_of_clock_digits = 6;
+let clockUnitsDistance = 3.4;
+let clockDigitsDistance = 3.1;
 
 const mixers = [],
   objects = [];
@@ -143,12 +145,18 @@ function setupDefaultScene() {
   // three cloned models with independent skeletons.
   // each model can have its own animation state
 
-  let position_offset = -3.4;
+  
 
   for (let index = number_of_clock_digits; index > 0; index--) {
     let modelClone = SkeletonUtils.clone(model);
 
-    modelClone.position.x = position_offset + index;
+    let digitOffset = clockUnitsDistance * -1;
+    if(index % 2 == 1) {
+      digitOffset = clockDigitsDistance * -1;
+    }
+
+    modelClone.position.x = digitOffset + index;
+
     modelClone.rotation.y = Math.PI * 0.5;
 
     let mixer = new THREE.AnimationMixer(modelClone);
