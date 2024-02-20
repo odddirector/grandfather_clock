@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - additive animation - skinning</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+		<style>
+			a {
+				color: blue;
+			}
+			.control-inactive button {
+				color: #888;
+			}
+            #testClock {
+                position: absolute !important;
+                top: 10px;
+                left: 10px;
+                font-size: 30px;
+                position: relative;
+                z-index: 99999;
+                color: black !important;
+            }
+		</style>
+	</head>
+	<body>
+		<div id="container"></div>
+		<div id="info">
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - Skeletal Additive Animation Blending
+			(model from <a href="https://www.mixamo.com/" target="_blank" rel="noopener">mixamo.com</a>)<br/>
+		</div>
+
+        <div id="testClock">
+
+        </div>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./three/build/three.module.js",
+					"three/addons/": "./three/jsm/"
+				}
+			}
+		</script>
+
+        <!-- <script type="module" src="main.js"></script> -->
+        <script type="module" src="multiple.js"></script>
+
+	</body>
+</html>
