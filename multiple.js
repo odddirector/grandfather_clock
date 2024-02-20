@@ -17,7 +17,7 @@ let firstRun = true;
 let number_of_clock_digits = 6;
 let clockUnitsDistance = 3.4;
 let clockDigitsDistance = 3.1;
-let randomShitProbability = 5;
+let randomShitProbability = 8;
 
 const mixers = [],
   objects = [];
@@ -47,11 +47,11 @@ function init() {
   scene.background = new THREE.Color(0xffffff);
   //scene.fog = new THREE.Fog(0xa0a0a0, 10, 50);
 
-  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8d8d8d, 3);
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8d8d8d, 4);
   hemiLight.position.set(0, 20, 0);
   scene.add(hemiLight);
 
-  const dirLight = new THREE.DirectionalLight(0xffffff, 3);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 6);
   dirLight.position.set(-3, 10, -10);
   dirLight.castShadow = true;
   dirLight.shadow.camera.top = 4;
@@ -208,6 +208,7 @@ function setupDefaultScene() {
 
   for (let index = number_of_clock_digits; index > 0; index--) {
     let modelClone = SkeletonUtils.clone(model);
+    
 
     let digitOffset = clockUnitsDistance * -1;
     if (index % 2 == 1) {
@@ -217,6 +218,30 @@ function setupDefaultScene() {
     modelClone.position.x = digitOffset + index;
 
     modelClone.rotation.y = Math.PI * 0.5;
+
+    
+    modelClone.traverse(function (object) {
+      if (object.isMesh) {
+        if(object.name != "Line02" && object.name != "Box01") {
+          object.material = object.material.clone();
+          // Generate random values for red, green, and blue components separately
+          let r = Math.random();
+          let g = Math.random();
+          let b = Math.random();
+          // Combine components into a single color value
+          let randomColor = new THREE.Color("hsl( "+getRandomInt(360)+", 100%, 67%)");
+          object.material.color.copy(randomColor);
+        } else {
+          //face and arms
+          let randomColor = new THREE.Color("hsl( 0, 100%, 90%)");
+          object.material.color.copy(randomColor);
+        }
+      }
+    });
+
+    //console.log(modelClone);
+
+    //.material.color.setHex( 0xffffff );
 
     let mixer = new THREE.AnimationMixer(modelClone);
 
@@ -472,3 +497,5 @@ function setInitialTime() {
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
+
+
