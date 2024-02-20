@@ -6,7 +6,7 @@ import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 let camera, scene, renderer, clock;
-let model, animations;
+let model, animations, cooModel;
 let digit_animations = [];
 let other_animations = [];
 let actions = [];
@@ -99,6 +99,69 @@ function init() {
     setInitialTime();
 
     setupDefaultScene();
+  });
+
+
+  loader.load("models/coocoo_12.glb", function (gltf) {
+    cooModel = gltf.scene;
+    cooModel.traverse(function (object) {
+      if (object.isMesh) object.castShadow = true;
+
+      // if(object.animations.length != 0) {
+      //   console.log(object.animations);
+      // }
+    });
+    
+    for (let index = 0; index < 4; index++) {
+      let modelClone = gltf.scene.clone();
+
+ 
+      
+      switch(index) {
+        case 0:
+          modelClone.position.y = 0.1;
+          modelClone.position.x = -0.2;
+        break;
+        case 1:
+          modelClone.position.y = -0.2;
+          modelClone.position.x = -0.2;
+        break;
+        
+        case 2:
+          modelClone.position.y = 0.1;
+          modelClone.position.x = 1.8;
+        break;
+        case 3:
+          modelClone.position.y = -0.2;
+          modelClone.position.x = 1.8;
+        break;
+      }
+
+      modelClone.position.z = 1;
+
+      modelClone.scale.setScalar(0.8);
+      
+      modelClone.rotation.y = Math.PI * 0.5;
+  
+      let mixer = new THREE.AnimationMixer(modelClone);
+      let clips = modelClone.animations;
+
+      //console.log(modelClone);
+
+      // modelClone.animations.forEach( ( clip ) => {
+          
+      //   mixer.clipAction( clip ).play();
+      
+      // } );
+  
+      // let action = mixer.clipAction(animations[0]);
+  
+      // action.play();
+  
+      scene.add(modelClone);
+    }
+
+   
   });
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
