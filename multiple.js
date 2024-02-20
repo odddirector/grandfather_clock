@@ -252,7 +252,8 @@ function updateClock() {
   let minutes = d.getMinutes();
   let seconds = d.getSeconds();
 
-  document.getElementById("testClock").innerHTML = pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2);
+  document.getElementById("testClock").innerHTML =
+    pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2);
 
   //console.log(pad(seconds, 2));
 
@@ -290,9 +291,15 @@ function updateClock() {
       );
       actions[clockDigit] = newAction;
       previousAction.fadeOut(1);
+
+      setTimeout(() => {
+        previousAction.stop();
+      }, 1000);
+
       newAction.fadeIn(1);
+
       newAction.play();
-      animate();
+      //animate();
     }
   }
 }
