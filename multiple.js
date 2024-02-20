@@ -17,6 +17,7 @@ let firstRun = true;
 let number_of_clock_digits = 6;
 let clockUnitsDistance = 3.4;
 let clockDigitsDistance = 3.1;
+let randomShitProbability = 5;
 
 const mixers = [],
   objects = [];
@@ -36,7 +37,7 @@ function init() {
     1000
   );
   camera.position.set(0, 4, -30);
-  camera.zoom = 6;
+  camera.zoom = 6.5;
   camera.updateProjectionMatrix();
   camera.lookAt(0, 0.5, 0);
 
@@ -92,6 +93,8 @@ function init() {
       }
     });
 
+    console.log(digit_animations);
+
     model.traverse(function (object) {
       if (object.isMesh) object.castShadow = true;
     });
@@ -100,7 +103,6 @@ function init() {
 
     setupDefaultScene();
   });
-
 
   loader.load("models/coocoo_12.glb", function (gltf) {
     cooModel = gltf.scene;
@@ -111,57 +113,53 @@ function init() {
       //   console.log(object.animations);
       // }
     });
-    
+
     for (let index = 0; index < 4; index++) {
       let modelClone = gltf.scene.clone();
 
- 
-      
-      switch(index) {
+      switch (index) {
         case 0:
           modelClone.position.y = 0.1;
           modelClone.position.x = -0.2;
-        break;
+          break;
         case 1:
           modelClone.position.y = -0.2;
           modelClone.position.x = -0.2;
-        break;
-        
+          break;
+
         case 2:
           modelClone.position.y = 0.1;
           modelClone.position.x = 1.8;
-        break;
+          break;
         case 3:
           modelClone.position.y = -0.2;
           modelClone.position.x = 1.8;
-        break;
+          break;
       }
 
       modelClone.position.z = 1;
 
       modelClone.scale.setScalar(0.8);
-      
+
       modelClone.rotation.y = Math.PI * 0.5;
-  
+
       let mixer = new THREE.AnimationMixer(modelClone);
       let clips = modelClone.animations;
 
       //console.log(modelClone);
 
       // modelClone.animations.forEach( ( clip ) => {
-          
+
       //   mixer.clipAction( clip ).play();
-      
+
       // } );
-  
+
       // let action = mixer.clipAction(animations[0]);
-  
+
       // action.play();
-  
+
       scene.add(modelClone);
     }
-
-   
   });
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -172,18 +170,18 @@ function init() {
 
   window.addEventListener("resize", onWindowResize);
 
-  const gui = new GUI();
+  // const gui = new GUI();
 
-  gui.add(params, "sharedSkeleton").onChange(function () {
-    clearScene();
+  // gui.add(params, "sharedSkeleton").onChange(function () {
+  //   clearScene();
 
-    if (params.sharedSkeleton === true) {
-      setupSharedSkeletonScene();
-    } else {
-      setupDefaultScene();
-    }
-  });
-  gui.open();
+  //   if (params.sharedSkeleton === true) {
+  //     setupSharedSkeletonScene();
+  //   } else {
+  //     setupDefaultScene();
+  //   }
+  // });
+  // gui.open();
 }
 
 function clearScene() {
@@ -208,13 +206,11 @@ function setupDefaultScene() {
   // three cloned models with independent skeletons.
   // each model can have its own animation state
 
-  
-
   for (let index = number_of_clock_digits; index > 0; index--) {
     let modelClone = SkeletonUtils.clone(model);
 
     let digitOffset = clockUnitsDistance * -1;
-    if(index % 2 == 1) {
+    if (index % 2 == 1) {
       digitOffset = clockDigitsDistance * -1;
     }
 
@@ -350,16 +346,32 @@ function updateClock() {
       currentTimePart = pad(seconds, 2).split("")[numberPart];
     }
 
+    let doRandomActionInstead = getRandomInt(10) == 1;
+
     if (currentDigitClip != currentTimePart) {
       let currentDigitClip_int = parseInt(currentDigitClip);
       let currentTimePart_int = parseInt(currentTimePart);
 
-      let previousAction = mixers[clockDigit].clipAction(
-        digit_animations[currentDigitClip_int]
+      // let previousAction = mixers[clockDigit].clipAction(
+      //   digit_animations[currentDigitClip_int]
+      // );
+
+      let previousActionObject = animations.find(
+        (item) => item.name === currentDigitClip
       );
+
+      let previousAction = mixers[clockDigit].clipAction(previousActionObject);
+
       let newAction = mixers[clockDigit].clipAction(
         digit_animations[currentTimePart_int]
       );
+
+      // if (doRandomActionInstead) {
+      //   newAction = mixers[clockDigit].clipAction(
+      //     other_animations[getRandomInt(other_animations.length-1)]
+      //   );
+      // }
+
       actions[clockDigit] = newAction;
       previousAction.fadeOut(1);
 
@@ -373,6 +385,51 @@ function updateClock() {
       //animate();
     }
   }
+}
+
+function doRandomShit() {
+  // let randomInt = getRandomInt(2);
+  // let shouldIDoShit = getRandomInt(10) == 3;
+  let shouldIDoShit = getRandomInt(randomShitProbability) == 3;
+  
+  if (shouldIDoShit == false) return;
+
+  let randomInt = getRandomInt(3);
+  let currentGrandpaDigit = actions[randomInt].getClip().name;
+  console.log("currentGrandpaDigit = "+currentGrandpaDigit);
+  let previousActionObject = animations.find(
+    (item) => item.name === currentGrandpaDigit
+  );
+  let previousAction = mixers[randomInt].clipAction(previousActionObject);
+  let newAction = mixers[randomInt].clipAction(
+    other_animations[getRandomInt(other_animations.length - 1)]
+  );
+  //actions[randomInt] = newAction;
+
+  //previousAction.fadeOut(1);
+
+  //setTimeout(() => {
+    //previousAction.stop();
+  //}, 1000);
+
+
+  previousAction.fadeOut(1);
+  newAction.fadeIn(1);
+  newAction.play();
+  
+  setTimeout(() => {
+    previousAction.stop();
+  }, 1000);
+
+
+  setTimeout(() => {
+    newAction.fadeOut(1);
+    setTimeout(() => {
+      newAction.stop();
+      previousAction.fadeIn(1);
+      previousAction.play();
+    }, 1000);
+  }, 10000);
 }
 
 // setTimeout(() => {
@@ -396,6 +453,11 @@ setInterval(() => {
   updateClock();
 }, 1000);
 
+setInterval(() => {
+  //   console.log(actions);
+  doRandomShit();
+}, 2000);
+
 function setInitialTime() {
   let d = new Date();
   let hours = d.getHours();
@@ -405,4 +467,8 @@ function setInitialTime() {
   let timeString = pad(hours, 2) + pad(minutes, 2) + pad(seconds, 2);
   initialTime = timeString.split("");
   console.log(initialTime);
+}
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
 }
