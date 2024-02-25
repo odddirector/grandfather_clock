@@ -12,7 +12,6 @@ let other_animations = [];
 let actions = [];
 
 let initialTime;
-let firstRun = true;
 
 let number_of_clock_digits = 6;
 let clockUnitsDistance = 3.4;
@@ -40,6 +39,7 @@ function init() {
   camera.zoom = 6.5;
   camera.updateProjectionMatrix();
   camera.lookAt(0, 0.5, 0);
+  camera.translateX(-0.1);
 
   clock = new THREE.Clock();
 
@@ -143,21 +143,6 @@ function init() {
 
       modelClone.rotation.y = Math.PI * 0.5;
 
-      let mixer = new THREE.AnimationMixer(modelClone);
-      let clips = modelClone.animations;
-
-      //console.log(modelClone);
-
-      // modelClone.animations.forEach( ( clip ) => {
-
-      //   mixer.clipAction( clip ).play();
-
-      // } );
-
-      // let action = mixer.clipAction(animations[0]);
-
-      // action.play();
-
       scene.add(modelClone);
     }
   });
@@ -169,19 +154,6 @@ function init() {
   document.body.appendChild(renderer.domElement);
 
   window.addEventListener("resize", onWindowResize);
-
-  // const gui = new GUI();
-
-  // gui.add(params, "sharedSkeleton").onChange(function () {
-  //   clearScene();
-
-  //   if (params.sharedSkeleton === true) {
-  //     setupSharedSkeletonScene();
-  //   } else {
-  //     setupDefaultScene();
-  //   }
-  // });
-  // gui.open();
 }
 
 function clearScene() {
@@ -257,55 +229,6 @@ function setupDefaultScene() {
     mixers.push(mixer);
   }
 }
-
-// function setupSharedSkeletonScene() {
-//   // three cloned models with a single shared skeleton.
-//   // all models share the same animation state
-
-//   const sharedModel = SkeletonUtils.clone(model);
-//   const shareSkinnedMesh = sharedModel.getObjectByName("vanguard_Mesh");
-//   const sharedSkeleton = shareSkinnedMesh.skeleton;
-//   const sharedParentBone = sharedModel.getObjectByName("mixamorigHips");
-//   scene.add(sharedParentBone); // the bones need to be in the scene for the animation to work
-
-//   const model1 = shareSkinnedMesh.clone();
-//   const model2 = shareSkinnedMesh.clone();
-//   const model3 = shareSkinnedMesh.clone();
-
-//   model1.bindMode = THREE.DetachedBindMode;
-//   model2.bindMode = THREE.DetachedBindMode;
-//   model3.bindMode = THREE.DetachedBindMode;
-
-//   const identity = new THREE.Matrix4();
-
-//   model1.bind(sharedSkeleton, identity);
-//   model2.bind(sharedSkeleton, identity);
-//   model3.bind(sharedSkeleton, identity);
-
-//   model1.position.x = -2;
-//   model2.position.x = 0;
-//   model3.position.x = 2;
-
-//   // apply transformation from the glTF asset
-
-//   model1.scale.setScalar(0.01);
-//   model1.rotation.x = -Math.PI * 0.5;
-//   model2.scale.setScalar(0.01);
-//   model2.rotation.x = -Math.PI * 0.5;
-//   model3.scale.setScalar(0.01);
-//   model3.rotation.x = -Math.PI * 0.5;
-
-//   //
-
-//   const mixer = new THREE.AnimationMixer(sharedParentBone);
-//   mixer.clipAction(animations[1]).play();
-
-//   scene.add(sharedParentBone, model1, model2, model3);
-
-//   objects.push(sharedParentBone, model1, model2, model3);
-//   mixers.push(mixer);
-// }
-
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -334,10 +257,6 @@ function pad(str, max) {
   return str.length < max ? pad("0" + str, max) : str;
 }
 
-// setInterval(() => {
-//   updateClock();
-// }, 1000);
-
 function updateClock() {
   let d = new Date();
   let hours = d.getHours();
@@ -346,8 +265,6 @@ function updateClock() {
 
   document.getElementById("testClock").innerHTML =
     pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2);
-
-  //console.log(pad(seconds, 2));
 
   //clock digits have indexes from 0 to 5 from left to right
   for (let clockDigit = 0; clockDigit < 6; clockDigit++) {
@@ -371,15 +288,9 @@ function updateClock() {
       currentTimePart = pad(seconds, 2).split("")[numberPart];
     }
 
-    let doRandomActionInstead = getRandomInt(10) == 1;
-
     if (currentDigitClip != currentTimePart) {
       let currentDigitClip_int = parseInt(currentDigitClip);
       let currentTimePart_int = parseInt(currentTimePart);
-
-      // let previousAction = mixers[clockDigit].clipAction(
-      //   digit_animations[currentDigitClip_int]
-      // );
 
       let previousActionObject = animations.find(
         (item) => item.name === currentDigitClip
@@ -391,11 +302,6 @@ function updateClock() {
         digit_animations[currentTimePart_int]
       );
 
-      // if (doRandomActionInstead) {
-      //   newAction = mixers[clockDigit].clipAction(
-      //     other_animations[getRandomInt(other_animations.length-1)]
-      //   );
-      // }
 
       actions[clockDigit] = newAction;
       previousAction.fadeOut(1);
@@ -413,8 +319,7 @@ function updateClock() {
 }
 
 function doRandomShit() {
-  // let randomInt = getRandomInt(2);
-  // let shouldIDoShit = getRandomInt(10) == 3;
+
   let shouldIDoShit = getRandomInt(randomShitProbability) == 3;
   
   if (shouldIDoShit == false) return;
@@ -429,14 +334,6 @@ function doRandomShit() {
   let newAction = mixers[randomInt].clipAction(
     other_animations[getRandomInt(other_animations.length - 1)]
   );
-  //actions[randomInt] = newAction;
-
-  //previousAction.fadeOut(1);
-
-  //setTimeout(() => {
-    //previousAction.stop();
-  //}, 1000);
-
 
   previousAction.fadeOut(1);
   newAction.fadeIn(1);
@@ -457,24 +354,7 @@ function doRandomShit() {
   }, 10000);
 }
 
-// setTimeout(() => {
-//   //console.log(animations);
-//   //   console.log(digit_animations);
-//   //   console.log(other_animations);
-//   //console.log(objects[0]);
-//   //   console.log("Delayed for 2 seconds.");
-//     let action = mixers[4].clipAction(animations[0]);
-//     let action_2 = mixers[4].clipAction(digit_animations[2]);
-//     action.fadeOut(5);
-//     action_2.fadeIn(5);
-//     action_2.play();
-//     animate();
-
-//     //console.log(mixers[4].clipAction(animations[0]).getClip());
-// }, 1000);
-
 setInterval(() => {
-  //   console.log(actions);
   updateClock();
 }, 1000);
 
