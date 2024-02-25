@@ -39,7 +39,7 @@ function init() {
   camera.zoom = 6.5;
   camera.updateProjectionMatrix();
   camera.lookAt(0, 0.5, 0);
-  camera.translateX(-0.1);
+  camera.translateX(-0.17);
 
   clock = new THREE.Clock();
 
